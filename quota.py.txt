@@ -1,0 +1,71 @@
+from sys import argv
+import smtplib
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
+ 
+fname, mlist=argv
+ 
+nlist=mlist.split("\n")
+receivers=[]
+uname=[]
+name=[]
+new=str()
+to=[]
+if nlist:
+	for i in range(len(nlist)):
+		receivers.append(nlist[i][5:]+'@calsoftinc.com')
+		uname.append(nlist[i][5:])
+	for i in range(len(uname)):
+	        f=uname[i].find('.')
+	        if f==-1:
+               		new+="%s." %uname[i].title()
+                	continue
+        	first=uname[i][:f].title()
+       		last=uname[i][f+1:].title()
+        	new+= "%s %s." %(first,last)
+	name=new.split(".")
+	name=filter(len,name)
+	receivers =filter(len,receivers) 
+	to=map(lambda a,b:a+'<'+b+'>', name,receivers)
+	for i in range(len(name)):
+		sender = 'auto.moni@calsoftinc.com'
+		receiver = receivers[i] 
+	        msg = MIMEMultipart()
+        	msg['From'] = 'Auto Monitor<auto.moni@calsoftinc.com>' 
+	        msg['To'] = to[i]
+	        msg['Subject'] = "Warning Mailbox Quota full"
+	        body = """ <html>
+        	<head></head>
+	        <body>
+		<p><small>Hi %s,<br><br>
+ 
+We are observing your mailbox size has utilized more than 200 MB quota size set on server,  kindly download all your email from server to local storage(PST).
+<br><br>
+Requesting you to do the needful at the earliest. If you don't then you'll not be able to receive future emails. Please follow the link for the steps: 
+<br>
+<a href="https://info.calsoft.org/sites/default/files/pictures/How%%20do%%20I%%20archive%%20my%%20messages%%20in%%20Thunderbird.pdf">How do I archive my messages in Thunderbird?</a><br><br>
+Let us know if in case of any issue.<br><br>
+--
+Thanks and Regards,
+</p><br>
+<p style = "color:#1565C0"><small><b>IT Support Group<br>
+Calsoft Pvt. Ltd.</b> Pune | India<br>
+Website:<a href = "www.calsoftinc.com">www.calsoftinc.com</a> <br><br>
+ 
+<i>Aligning IT and Business Goals</i></small></p>
+       </small> </body>
+        </html>""" %str(name[i])
+		print name[i]
+	        msg.attach(MIMEText(body, 'html'))
+ 
+	        try:
+	                server = smtplib.SMTP('csom2.calsoft.org', 587)
+	                server.starttls()
+	                server.login(sender, "calsoft@123")
+	                server.sendmail(sender, receiver, msg.as_string())
+	                print "Successfully Sent E-Mail"
+	        except smtplib.SMTPException:
+	                print "Error: unable to send email"
+ 
+	        server.quit()
+ 

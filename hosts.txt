@@ -1,0 +1,5 @@
+
+[Mail_Servers]
+2
+Postfix ansible_ssh_host=192.168.206.109 
+3

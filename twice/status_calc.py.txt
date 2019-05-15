@@ -1,0 +1,132 @@
+#getting the raw output from commands, processing, filtering, calculating the status and comparing from threshold values  
+#it will return the exact status of the resources and a status flag(above threshold(red) or below(green) and in some cases mediate(orange))
+ 
+import collections
+ 
+ 
+def cpu_status(argv):
+	status=argv
+	status_int=int(status)
+	if int(status) < 50:
+		flag='green'
+		return status, flag
+	else:
+		flag='red'
+		return status, flag
+ 
+def disk_status(argv):
+	status=argv
+	status_int=int(status)
+	if int(status) >= 40:
+                flag='green'
+                return status, flag
+        else:
+                flag='red'
+                return status, flag
+ 
+def load_status(argv):
+	status=argv
+	value=status.split()
+	load=value[10].split(".")
+	if int(load[0])<10:
+                flag='green'
+                return load[0], flag
+        else:
+                flag='red'
+                return load[0], flag
+ 
+def mem_status(argv):
+        status=argv
+        status_int=int(status)
+        if int(status) < 50:
+                flag='green'
+                return status, flag
+        else:
+                flag='red'
+                return status, flag
+ 
+def mailq_status(argv):
+        status=argv
+	if status!="Mail queue is empty":
+		mailq=status[status.rindex('\n'):]
+		req=mailq.split()
+		if int(req[4]) > 15:
+			flag='orange'
+			if int(req[4]) > 40:
+				flag='red'
+			return req[4], flag
+		else:
+			flag='green'
+			return req[4], flag
+        else:
+                req='Mail queue is empty'
+		flag='green'
+		return req, flag
+ 
+def network_status(argv):
+	pong=argv
+ 
+	ping=pong.split("\n")
+	rec=ping[-2].split()
+ 
+	time=ping[-1].split()
+	latency=time[3].split("/")
+	ltime=latency[2].split(".")
+ 
+	if int(rec[3])>2 and int(ltime[0])<25:
+		status='Good'
+		flag='green'
+		return status, flag
+	else:
+                status='Bad'
+                flag='red'
+                return status, flag
+ 
+def quota_status(argv):
+	ulist=argv
+	users=ulist.split("\n")
+	if not users:
+		no=0
+		flag='green'
+                return no, flag
+	else:
+		no=len(users)
+		flag='orange'
+                return no, flag
+ 
+def duplicate_alias_status():
+	f = open('alias_page','r')
+	content = f.readlines()
+ 
+	out=[]
+	status=0
+	dup=0
+	for i in content:
+		if i != "\n":
+			alias = i.split(" ")
+			alias[len(alias)-1] = alias[len(alias)-1].strip("\n")
+ 
+			for j in alias:
+				if j == '':
+					alias.remove(j)
+			alias_name = alias[0]
+			alias.remove(alias_name)
+ 
+			alias_members = []
+			alias_members = [item for item, count in collections.Counter(alias).items() if count > 1]
+ 
+			if len(alias_members)!=0:
+				if dup!=1:
+					out.append('Duplicate entry found- ')
+					dup=1
+					flag='red'
+					status = 1
+				out.append('<br>Alias name: ' + alias_name + '- ' )
+				for i in alias_members:
+					out.append(i + ', ')
+ 
+	if status == 0:
+		out.append('No Duplicate entries in any Alias<br>')
+		flag='green'
+	f.close()
+	return out,flag

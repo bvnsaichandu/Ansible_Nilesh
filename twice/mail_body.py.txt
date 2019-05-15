@@ -1,0 +1,47 @@
+#this script will take the arguments and will call the funcs of status_calc.py for calculating the thershold values and status of the resources
+ 
+#and frame the mail body according to the status and calculation and pass the body to send_mail.py which will send the mail
+ 
+from sys import argv
+from status_calc import *
+from send_mail import send
+ 
+a=0
+value=[] #it will catch the system argument 
+value=argv
+ 
+status=[] #it will catch the return values and status from the functions of status_calc
+ 
+#list containing the name of resources to be monitored
+resources=['CPU Usage(%)','Disk Availability(GB)','Memory Usage(%)','Unit Load','Mail Queue Requests Pending','Network Health','Quota Endangered User No.']
+ 
+ 
+status+=cpu_status(value[1])
+status+=disk_status(value[2])
+status+=mem_status(value[3])
+status+=load_status(value[4])
+status+=mailq_status(value[5])
+status+=network_status(value[6])
+status+=quota_status(value[7])
+status+=duplicate_alias_status()
+ 
+body = """<h2>PostFix MailServer Monitoring Complete Status Report</h2> 
+<html>
+<head></head>
+<body>"""
+ 
+for i in range(len(value)):
+	if i!=7:
+		body = body +"""
+		<p style="color:%s">%s = %s</b></p>
+""" %(str(status[a+1]),str(resources[i]),str(status[a]))
+		a+=2
+ 
+	else:
+		body = body +"""<p style="color:%s">%s</a></b></p> 
+""" %(str(status[a+1]),''.join(status[a]))
+ 
+body+="""</body>
+</html>"""
+ 
+send(body)

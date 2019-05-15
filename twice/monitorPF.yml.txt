@@ -1,0 +1,89 @@
+#Playbook for Monitoring whole Postfix server in once and sending the status report. This will be running twice a day
+2
+
+3
+---
+4
+- name: Monitoring PostFix Mail Server
+5
+hosts: Postfix 
+6
+gather_facts: no
+7
+vars_files:
+8
+- /etc/ansible/group_vars/duplicate_alias.yml
+9
+tasks:
+10
+- name: CPU Monitoring
+11
+shell: grep 'cpu ' /proc/stat | awk '{OFMT="%0.f"}{usage=($2+$4)*100/($2+$4+$5)} END {print usage}'
+12
+register: cpu_status
+13
+
+14
+- name: Disk Monitoring
+15
+shell: df | grep csom | awk '{OFMT="%0.f"}{disk=$4/(1024*1024)} END{print disk}'
+16
+register: disk_status
+17
+
+18
+- name: Memory Monitoring
+19
+shell: free -m | grep Mem | awk '{OFMT="%0.f"}{used=$3*100/$2} END{print used}'
+20
+register: mem_status
+21
+
+22
+- name: Load Monitoring
+23
+shell: w | grep load
+24
+register: load_status
+25
+
+26
+- name: Mail Queue Monitoring
+27
+shell: mailq
+28
+register: mailq_status
+29
+
+30
+- name: Network Monitoring (Ping)
+31
+local_action: command ping -c10 192.168.206.109
+32
+register: net_status
+33
+
+34
+- name: User's Quota Check
+35
+shell: "sudo cyrquota | awk '$2>=70 && $2<=100' | awk '{print $4}'"
+36
+register: user_list
+37
+
+38
+- name: Login into CSOM
+39
+local_action: shell curl -u {{user}}:{{pass}} https://csom2.calsoft.org/aliases/static.php > alias_page
+40
+
+41
+- name: Send Status Report Mail #calling a python file and passing the output of above commands as arguments
+42
+local_action: command python mail_body.py "{{cpu_status.stdout}}" "{{disk_status.stdout}}" "{{mem_status.stdout}}" "{{load_status.stdout}}" "{{mailq_status.stdout}}" "{{net_status.stdout}}" "{{user_list.stdout}}"
+43
+register: final 
+44
+- debug:
+45
+msg: "{{final.stdout_lines}}"

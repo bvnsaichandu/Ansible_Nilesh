@@ -1,0 +1,180 @@
+#getting the raw output from commands, processing, filtering, calculating the status and comparing from threshold values and accordingly framing the subject and mail body
+#it will return the exact status of the resources and a status flag(above threshold(red) or below(green) and in some cases mediate(orange))
+ 
+from sys import argv
+from send_mail import send
+ 
+value=[] #it will catch the system argument argument
+value=argv
+ 
+receivers = ['it@calsoftinc.com']
+to=['IT Team<it@calsoftinc.com>']
+ 
+def cpu_status(argv):
+	status=argv
+	if int(status) > 50:	#CPU Usage Percentage
+		subject="CPU Usage is above Threshold!! [ACTION REQUIRED!] "
+		body=""" <html>
+        <h2>PostFix MailServer Monitoring Report</h2>
+        <h2 style = "color:red">Critical CPU Usage!!!</h2>
+        <head></head>
+        <body>
+                <p style = "color:red"><b>CPU Usage = %d%%</b></p>
+        </body>
+        </html>""" %int(status)
+		print "CPU usage is above Threshold!!"
+		send(to,receivers, subject, body)
+ 
+	else:
+		print "CPU Usage is Good"
+ 
+ 
+def disk_status(argv):
+	status=argv
+	if int(status) < 40:	#Available Disk Space in GB
+                subject="Disk Usage is above Threshold!! [ACTION REQUIRED!] "
+                body=""" <html>
+        <h2>PostFix MailServer Monitoring Report</h2>
+        <h2 style = "color:red">Critical Disk Usage!!!</h2>
+        <head></head>
+        <body>
+                <p style = "color:red"><b>Available Storage = %dGB</b></p>
+        </body>
+        </html>""" %int(status)
+                print "Disk usage is above Threshold!!"
+                send(to,receivers, subject, body)
+        else:
+                print "Disk Usage is Good"
+ 
+ 
+def load_status(argv):
+	status=argv
+	value=status.split()
+	load=value[10].split(".")
+	if int(load[0])>10:	#Unit Load
+                subject="Load is above Threshold!! [ACTION REQUIRED!] "
+                body=""" <html>
+        <h2>PostFix MailServer Monitoring Report</h2>
+        <h2 style = "color:red">Over Loaded!!!</h2>
+        <head></head>
+        <body>
+                <p style = "color:red"><b>Unit Load = %d</b></p>
+        </body>
+        </html>""" %int(load[0])
+                print "Load is above Threshold!!"
+                send(to,receivers, subject, body)
+        else:
+                print "Load is Good"
+ 
+ 
+def mem_status(argv):
+        status=argv
+        if int(status) > 50:	#Memory Used Percentage
+                subject="Memory Usage is above Threshold!! [ACTION REQUIRED!] "
+                body=""" <html>
+        <h2>PostFix MailServer Monitoring Report</h2>
+        <h2 style = "color:red">Critical Memory Usage!!!</h2>
+        <head></head>
+        <body>
+                <p style = "color:red"><b>Memory Usage = %d%%</b></p>
+        </body>
+        </html>""" %int(status)
+                print "Memory usage is above Threshold!!"
+                send(to,receivers, subject, body)
+        else:
+                print "Memory Usage is Good"
+ 
+ 
+def mailq_status(argv):
+        status=argv
+	if status!="Mail queue is empty":
+		mailq=status[status.rindex('\n'):]
+		req=mailq.split()	
+		if int(req[4]) > 15:	#no of requests in queue
+			flag='orange'
+			subject="Normal Alert!! Too many request in Mail Queue [ACTION REQUIRED!] "
+			if int(req[4]) > 40:
+				flag='red'
+				subject="High Alert!! Too many request in Mail Queue [ACTION REQUIRED!] "
+			body = """ <html>
+                        <h2>PostFix MailServer Monitoring Report</h2>
+                        <h2 style = "color:red">Too Many Requests in Mail Queue!!!</h2>
+                        <head></head>
+                        <body>
+                                <p style = "color:%s"><b>No. of Requests = %d</b></p>
+                        </body>
+                        </html>""" %(flag,int(req[4]))
+                	print "Mail Queue: Too many requests!!"
+                	send(to,receivers, subject, body)
+		else:
+			print "Mail Queue: Not too many Requests"
+        else:
+		print "Mail queue is empty"
+ 
+def network_status(argv):
+	pong=argv
+ 
+	ping=pong.split("\n")
+	rec=ping[-2].split()	#received packets number
+ 
+	time=ping[-1].split()
+	latency=time[3].split("/")
+	ltime=latency[2].split(".")	#max latency time
+ 
+	if int(rec[3])<=2 and int(ltime[0])>=25:
+		subject="Network Status is BAD!! [ACTION REQUIRED!] "
+		body = """ <html>
+        <h2>PostFix MailServer Monitoring Report</h2>
+        <h2 style = "color:red">BAD NETWORK CONNECTION!!!</h2>
+        <head></head>
+        <body>
+                <br>
+                <ul style = "color:red"><b>Network Status:</b>
+                <br><br>
+                        <li> Transmitted : 10</li>
+                        <li> Received : %d </li>
+                        <li> Max Latency : %d  ms</li>
+                </ul>
+        </body>
+        </html>""" %(int(rec[3]),int(ltime[0]))
+                print "Network Status is BAD!!"
+                send(to,receivers, subject, body)
+	else:
+		print "Network Status is GOOD"
+ 
+def mailflow_check():
+	receiver=['auto.moni@calsoftinc.com','infra.monitor@calsoftinc.com','automoni7@gmail.com']
+	too=['Auto Monitor<auto.moni@calsoftinc.com>','Infra Monitor<infra.monitor@calsoftinc.com>','Auto Monitor<automoni7@gmail.com>']
+	user=['CSOM to CSOM','CSOM to Exchange','CSOM to Gmail']
+	subject="Mail Flow Check Test Mail!! "
+	body=""" <html>
+        <h2>Test Mail!!!</h2>
+        <head></head>
+        <body>
+                <p style = "color:orange"><b>This mail was sent to test the mail flow of PostFix Mail server</b></p>
+        </body>
+        </html>"""
+	for i in range(len(receiver)):
+		print user[i]
+		flow=send(too[i],receiver[i], subject, body)
+		if flow=="Error: unable to Send E-Mail":
+			subject="Problem in Mail Flow!! [ACTION REQUIRED!] "
+	                body=""" <html>
+        <h2>PostFix MailServer Monitoring Report</h2>
+        <h2style = "color:red">Mail Flow Error!!!</h2>
+        <head></head>
+        <body>
+                <p style = "color:red"><b>%s : %s</b></p>
+        </body>
+        </html>""" %(str(user[i]),flow)
+	                send(to,receivers, subject, body)
+ 
+ 
+ 
+cpu_status(value[1])
+disk_status(value[2])
+mem_status(value[3])
+load_status(value[4])
+mailq_status(value[5])
+network_status(value[6])
+mailflow_check()

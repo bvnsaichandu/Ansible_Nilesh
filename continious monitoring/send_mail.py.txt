@@ -1,0 +1,31 @@
+#for getting receiver, subject, mail body and send the mail
+ 
+import smtplib
+from email.MIMEMultipart import MIMEMultipart #for multipart container
+from email.MIMEText import MIMEText #for converting html mail body into simple text
+import datetime
+ 
+def send(to,rec, sub, mail_body):
+	now = datetime.datetime.now()
+	sender = 'auto.moni@calsoftinc.com'
+	receivers = rec
+	rec_name=to
+	msg = MIMEMultipart() #multipart container
+	msg['From'] = 'Auto Monitor<auto.moni@calsoftinc.com>'
+	msg['To'] = ', '.join(rec_name) #conversion from list to string 
+	msg['Subject'] = sub + now.strftime("%Y-%m-%d %H:%M")
+	body = mail_body
+ 
+	msg.attach(MIMEText(mail_body, 'html'))
+	try:
+	        server = smtplib.SMTP('csom2.calsoft.org', 587)
+	        server.starttls()
+	        server.login(sender, "calsoft@123")
+	        server.sendmail(sender, receivers, msg.as_string())
+	        print "Successfully Sent E-Mail"
+		return "Successfully Sent E-Mail"
+	except smtplib.SMTPException:
+	        print "Error: unable to Send E-Mail"
+		return "Error: unable to Send E-Mail"
+ 
+	server.quit()

@@ -1,0 +1,71 @@
+#Playbook for Monitoring whole Postfix server in once and sending only the bad status report. This will be running everyhour
+2
+
+3
+---
+4
+- name: Monitoring PostFix Mail Server
+5
+hosts: Postfix 
+6
+gather_facts: no
+7
+tasks:
+8
+- name: CPU Monitoring
+9
+shell: grep 'cpu ' /proc/stat | awk '{OFMT="%0.f"}{usage=($2+$4)*100/($2+$4+$5)} END {print usage}'
+10
+register: cpu_status
+11
+
+12
+- name: Disk Monitoring
+13
+shell: df | grep csom | awk '{OFMT="%0.f"}{disk=$4/(1024*1024)} END{print disk}'
+14
+register: disk_status
+15
+
+16
+- name: Memory Monitoring
+17
+shell: free -m | grep Mem | awk '{OFMT="%0.f"}{used=$3*100/$2} END{print used}'
+18
+register: mem_status
+19
+
+20
+- name: Load Monitoring
+21
+shell: w | grep load
+22
+register: load_status
+23
+
+24
+- name: Mail Queue Monitoring
+25
+shell: mailq
+26
+register: mailq_status
+27
+
+28
+- name: Network Monitoring (Ping)
+29
+local_action: command ping -c10 192.168.206.109
+30
+register: net_status
+31
+
+32
+- name: Send Status Report Mail #calling a python file and passing the output of above commands as arguments
+33
+local_action: command python status_calc.py "{{cpu_status.stdout}}" "{{disk_status.stdout}}" "{{mem_status.stdout}}" "{{load_status.stdout}}" "{{mailq_status.stdout}}" "{{net_status.stdout}}"
+34
+register: final 
+35
+- debug:
+36
+msg: "{{final.stdout_lines}}"

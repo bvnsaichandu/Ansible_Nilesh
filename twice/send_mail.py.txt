@@ -1,0 +1,28 @@
+#it will attach the mail body and send the mail
+ 
+import smtplib
+from email.MIMEMultipart import MIMEMultipart #for multipart container
+from email.MIMEText import MIMEText #for converting html mail body into simple text
+import datetime
+ 
+def send(mail_body):
+	now = datetime.datetime.now()
+	sender = 'auto.moni@calsoftinc.com'
+	receivers = ['it@calsoftinc.com']
+	to=['IT Team<it@calsoftinc.com>']
+	msg = MIMEMultipart() #multipart container
+	msg['From'] = 'Auto Monitor<auto.moni@calsoftinc.com>'
+	msg['To'] = ', '.join(to) #conversion from list to string 
+	msg['Subject'] = "Postfix Mail Server Status Report " + now.strftime("%Y-%m-%d %H:%M")
+ 
+	msg.attach(MIMEText(mail_body, 'html'))
+	try:
+	        server = smtplib.SMTP('csom2.calsoft.org', 587)
+	        server.starttls()
+	        server.login(sender, "calsoft@123")
+	        server.sendmail(sender, receivers, msg.as_string())
+	        print "Successfully Sent E-Mail"
+	except smtplib.SMTPException:
+	        print "Error: unable to send email"
+ 
+	server.quit()

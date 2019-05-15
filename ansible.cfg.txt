@@ -1,0 +1,889 @@
+# config file for ansible -- https://ansible.com/
+2
+# ===============================================
+3
+
+4
+# nearly all parameters can be overridden in ansible-playbook
+5
+# or with command line flags. ansible will read ANSIBLE_CONFIG,
+6
+# ansible.cfg in the current working directory, .ansible.cfg in
+7
+# the home directory or /etc/ansible/ansible.cfg, whichever it
+8
+# finds first
+9
+
+10
+[defaults]
+11
+
+12
+# some basic default values...
+13
+
+14
+#inventory = /etc/ansible/hosts
+15
+#library = /usr/share/my_modules/
+16
+#module_utils = /usr/share/my_module_utils/
+17
+#remote_tmp = ~/.ansible/tmp
+18
+#local_tmp = ~/.ansible/tmp
+19
+#forks = 5
+20
+#poll_interval = 15
+21
+#sudo_user = root
+22
+#ask_sudo_pass = True
+23
+#ask_pass = True
+24
+#transport = smart
+25
+#remote_port = 22
+26
+#module_lang = C
+27
+#module_set_locale = False
+28
+
+29
+# plays will gather facts by default, which contain information about
+30
+# the remote system.
+31
+#
+32
+# smart - gather by default, but don't regather if already gathered
+33
+# implicit - gather by default, turn off with gather_facts: False
+34
+# explicit - do not gather by default, must say gather_facts: True
+35
+#gathering = implicit
+36
+
+37
+# This only affects the gathering done by a play's gather_facts directive,
+38
+# by default gathering retrieves all facts subsets
+39
+# all - gather all subsets
+40
+# network - gather min and network facts
+41
+# hardware - gather hardware facts (longest facts to retrieve)
+42
+# virtual - gather min and virtual facts
+43
+# facter - import facts from facter
+44
+# ohai - import facts from ohai
+45
+# You can combine them using comma (ex: network,virtual)
+46
+# You can negate them using ! (ex: !hardware,!facter,!ohai)
+47
+# A minimal set of facts is always gathered.
+48
+#gather_subset = all
+49
+
+50
+# some hardware related facts are collected
+51
+# with a maximum timeout of 10 seconds. This
+52
+# option lets you increase or decrease that
+53
+# timeout to something more suitable for the
+54
+# environment. 
+55
+# gather_timeout = 10
+56
+
+57
+# additional paths to search for roles in, colon separated
+58
+#roles_path = /etc/ansible/roles
+59
+
+60
+# uncomment this to disable SSH key host checking
+61
+#host_key_checking = False
+62
+
+63
+# change the default callback
+64
+#stdout_callback = skippy
+65
+# enable additional callbacks
+66
+#callback_whitelist = timer, mail
+67
+
+68
+# Determine whether includes in tasks and handlers are "static" by
+69
+# default. As of 2.0, includes are dynamic by default. Setting these
+70
+# values to True will make includes behave more like they did in the
+71
+# 1.x versions.
+72
+#task_includes_static = True
+73
+#handler_includes_static = True
+74
+
+75
+# Controls if a missing handler for a notification event is an error or a warning
+76
+#error_on_missing_handler = True
+77
+
+78
+# change this for alternative sudo implementations
+79
+#sudo_exe = sudo
+80
+
+81
+# What flags to pass to sudo
+82
+# WARNING: leaving out the defaults might create unexpected behaviours
+83
+#sudo_flags = -H -S -n
+84
+
+85
+# SSH timeout
+86
+#timeout = 10
+87
+
+88
+# default user to use for playbooks if user is not specified
+89
+# (/usr/bin/ansible will use current user as default)
+90
+#remote_user = root
+91
+
+92
+# logging is off by default unless this path is defined
+93
+# if so defined, consider logrotate
+94
+#log_path = /var/log/ansible.log
+95
+
+96
+# default module name for /usr/bin/ansible
+97
+#module_name = command
+98
+
+99
+# use this shell for commands executed under sudo
+100
+# you may need to change this to bin/bash in rare instances
+101
+# if sudo is constrained
+102
+#executable = /bin/sh
+103
+
+104
+# if inventory variables overlap, does the higher precedence one win
+105
+# or are hash values merged together? The default is 'replace' but
+106
+# this can also be set to 'merge'.
+107
+#hash_behaviour = replace
+108
+
+109
+# by default, variables from roles will be visible in the global variable
+110
+# scope. To prevent this, the following option can be enabled, and only
+111
+# tasks and handlers within the role will see the variables there
+112
+#private_role_vars = yes
+113
+
+114
+# list any Jinja2 extensions to enable here:
+115
+#jinja2_extensions = jinja2.ext.do,jinja2.ext.i18n
+116
+
+117
+# if set, always use this private key file for authentication, same as
+118
+# if passing --private-key to ansible or ansible-playbook
+119
+#private_key_file = /path/to/file
+120
+
+121
+# If set, configures the path to the Vault password file as an alternative to
+122
+# specifying --vault-password-file on the command line.
+123
+vault_password_file = /etc/ansible/group_vars/.password
+124
+
+125
+# format of string {{ ansible_managed }} available within Jinja2
+126
+# templates indicates to users editing templates files will be replaced.
+127
+# replacing {file}, {host} and {uid} and strftime codes with proper values.
+128
+#ansible_managed = Ansible managed: {file} modified on %Y-%m-%d %H:%M:%S by {uid} on {host}
+129
+# {file}, {host}, {uid}, and the timestamp can all interfere with idempotence
+130
+# in some situations so the default is a static string:
+131
+#ansible_managed = Ansible managed
+132
+
+133
+# by default, ansible-playbook will display "Skipping [host]" if it determines a task
+134
+# should not be run on a host. Set this to "False" if you don't want to see these "Skipping"
+135
+# messages. NOTE: the task header will still be shown regardless of whether or not the
+136
+# task is skipped.
+137
+#display_skipped_hosts = True
+138
+
+139
+# by default, if a task in a playbook does not include a name: field then
+140
+# ansible-playbook will construct a header that includes the task's action but
+141
+# not the task's args. This is a security feature because ansible cannot know
+142
+# if the *module* considers an argument to be no_log at the time that the
+143
+# header is printed. If your environment doesn't have a problem securing
+144
+# stdout from ansible-playbook (or you have manually specified no_log in your
+145
+# playbook on all of the tasks where you have secret information) then you can
+146
+# safely set this to True to get more informative messages.
+147
+#display_args_to_stdout = False
+148
+
+149
+# by default (as of 1.3), Ansible will raise errors when attempting to dereference
+150
+# Jinja2 variables that are not set in templates or action lines. Uncomment this line
+151
+# to revert the behavior to pre-1.3.
+152
+#error_on_undefined_vars = False
+153
+
+154
+# by default (as of 1.6), Ansible may display warnings based on the configuration of the
+155
+# system running ansible itself. This may include warnings about 3rd party packages or
+156
+# other conditions that should be resolved if possible.
+157
+# to disable these warnings, set the following value to False:
+158
+#system_warnings = True
+159
+
+160
+# by default (as of 1.4), Ansible may display deprecation warnings for language
+161
+# features that should no longer be used and will be removed in future versions.
+162
+# to disable these warnings, set the following value to False:
+163
+#deprecation_warnings = True
+164
+
+165
+# (as of 1.8), Ansible can optionally warn when usage of the shell and
+166
+# command module appear to be simplified by using a default Ansible module
+167
+# instead. These warnings can be silenced by adjusting the following
+168
+# setting or adding warn=yes or warn=no to the end of the command line
+169
+# parameter string. This will for example suggest using the git module
+170
+# instead of shelling out to the git command.
+171
+command_warnings = False
+172
+
+173
+
+174
+# set plugin path directories here, separate with colons
+175
+#action_plugins = /usr/share/ansible/plugins/action
+176
+#cache_plugins = /usr/share/ansible/plugins/cache
+177
+#callback_plugins = /usr/share/ansible/plugins/callback
+178
+#connection_plugins = /usr/share/ansible/plugins/connection
+179
+#lookup_plugins = /usr/share/ansible/plugins/lookup
+180
+#inventory_plugins = /usr/share/ansible/plugins/inventory
+181
+#vars_plugins = /usr/share/ansible/plugins/vars
+182
+#filter_plugins = /usr/share/ansible/plugins/filter
+183
+#test_plugins = /usr/share/ansible/plugins/test
+184
+#terminal_plugins = /usr/share/ansible/plugins/terminal
+185
+#strategy_plugins = /usr/share/ansible/plugins/strategy
+186
+
+187
+
+188
+# by default, ansible will use the 'linear' strategy but you may want to try
+189
+# another one
+190
+#strategy = free
+191
+
+192
+# by default callbacks are not loaded for /bin/ansible, enable this if you
+193
+# want, for example, a notification or logging callback to also apply to
+194
+# /bin/ansible runs
+195
+#bin_ansible_callbacks = False
+196
+
+197
+
+198
+# don't like cows? that's unfortunate.
+199
+# set to 1 if you don't want cowsay support or export ANSIBLE_NOCOWS=1
+200
+#nocows = 1
+201
+
+202
+# set which cowsay stencil you'd like to use by default. When set to 'random',
+203
+# a random stencil will be selected for each task. The selection will be filtered
+204
+# against the `cow_whitelist` option below.
+205
+#cow_selection = default
+206
+#cow_selection = random
+207
+
+208
+# when using the 'random' option for cowsay, stencils will be restricted to this list.
+209
+# it should be formatted as a comma-separated list with no spaces between names.
+210
+# NOTE: line continuations here are for formatting purposes only, as the INI parser
+211
+# in python does not support them.
+212
+#cow_whitelist=bud-frogs,bunny,cheese,daemon,default,dragon,elephant-in-snake,elephant,eyes,\
+213
+# hellokitty,kitty,luke-koala,meow,milk,moofasa,moose,ren,sheep,small,stegosaurus,\
+214
+# stimpy,supermilker,three-eyes,turkey,turtle,tux,udder,vader-koala,vader,www
+215
+
+216
+# don't like colors either?
+217
+# set to 1 if you don't want colors, or export ANSIBLE_NOCOLOR=1
+218
+#nocolor = 1
+219
+
+220
+# if set to a persistent type (not 'memory', for example 'redis') fact values
+221
+# from previous runs in Ansible will be stored. This may be useful when
+222
+# wanting to use, for example, IP information from one group of servers
+223
+# without having to talk to them in the same playbook run to get their
+224
+# current IP information.
+225
+#fact_caching = memory
+226
+
+227
+
+228
+# retry files
+229
+# When a playbook fails by default a .retry file will be created in ~/
+230
+# You can disable this feature by setting retry_files_enabled to False
+231
+# and you can change the location of the files by setting retry_files_save_path
+232
+
+233
+retry_files_enabled = False
+234
+#retry_files_save_path = ~/.ansible-retry
+235
+
+236
+# squash actions
+237
+# Ansible can optimise actions that call modules with list parameters
+238
+# when looping. Instead of calling the module once per with_ item, the
+239
+# module is called once with all items at once. Currently this only works
+240
+# under limited circumstances, and only with parameters named 'name'.
+241
+#squash_actions = apk,apt,dnf,homebrew,pacman,pkgng,yum,zypper
+242
+
+243
+# prevents logging of task data, off by default
+244
+#no_log = False
+245
+
+246
+# prevents logging of tasks, but only on the targets, data is still logged on the master/controller
+247
+#no_target_syslog = False
+248
+
+249
+# controls whether Ansible will raise an error or warning if a task has no
+250
+# choice but to create world readable temporary files to execute a module on
+251
+# the remote machine. This option is False by default for security. Users may
+252
+# turn this on to have behaviour more like Ansible prior to 2.1.x. See
+253
+# https://docs.ansible.com/ansible/become.html#becoming-an-unprivileged-user
+254
+# for more secure ways to fix this than enabling this option.
+255
+#allow_world_readable_tmpfiles = False
+256
+
+257
+# controls the compression level of variables sent to
+258
+# worker processes. At the default of 0, no compression
+259
+# is used. This value must be an integer from 0 to 9.
+260
+#var_compression_level = 9
+261
+
+262
+# controls what compression method is used for new-style ansible modules when
+263
+# they are sent to the remote system. The compression types depend on having
+264
+# support compiled into both the controller's python and the client's python.
+265
+# The names should match with the python Zipfile compression types:
+266
+# * ZIP_STORED (no compression. available everywhere)
+267
+# * ZIP_DEFLATED (uses zlib, the default)
+268
+# These values may be set per host via the ansible_module_compression inventory
+269
+# variable
+270
+#module_compression = 'ZIP_DEFLATED'
+271
+
+272
+# This controls the cutoff point (in bytes) on --diff for files
+273
+# set to 0 for unlimited (RAM may suffer!).
+274
+#max_diff_size = 1048576
+275
+
+276
+# This controls how ansible handles multiple --tags and --skip-tags arguments
+277
+# on the CLI. If this is True then multiple arguments are merged together. If
+278
+# it is False, then the last specified argument is used and the others are ignored.
+279
+#merge_multiple_cli_flags = False
+280
+
+281
+# Controls showing custom stats at the end, off by default
+282
+#show_custom_stats = True
+283
+
+284
+# Controls which files to ignore when using a directory as inventory with
+285
+# possibly multiple sources (both static and dynamic)
+286
+#inventory_ignore_extensions = ~, .orig, .bak, .ini, .cfg, .retry, .pyc, .pyo
+287
+
+288
+# This family of modules use an alternative execution path optimized for network appliances
+289
+# only update this setting if you know how this works, otherwise it can break module execution
+290
+#network_group_modules=['eos', 'nxos', 'ios', 'iosxr', 'junos', 'vyos']
+291
+
+292
+# When enabled, this option allows lookups (via variables like {{lookup('foo')}} or when used as
+293
+# a loop with `with_foo`) to return data that is not marked "unsafe". This means the data may contain
+294
+# jinja2 templating language which will be run through the templating engine.
+295
+# ENABLING THIS COULD BE A SECURITY RISK
+296
+#allow_unsafe_lookups = False
+297
+
+298
+[privilege_escalation]
+299
+#become=True
+300
+#become_method=sudo
+301
+#become_user=root
+302
+#become_ask_pass=False
+303
+
+304
+[paramiko_connection]
+305
+
+306
+# uncomment this line to cause the paramiko connection plugin to not record new host
+307
+# keys encountered. Increases performance on new host additions. Setting works independently of the
+308
+# host key checking setting above.
+309
+#record_host_keys=False
+310
+
+311
+# by default, Ansible requests a pseudo-terminal for commands executed under sudo. Uncomment this
+312
+# line to disable this behaviour.
+313
+#pty=False
+314
+
+315
+# paramiko will default to looking for SSH keys initially when trying to
+316
+# authenticate to remote devices. This is a problem for some network devices
+317
+# that close the connection after a key failure. Uncomment this line to
+318
+# disable the Paramiko look for keys function
+319
+#look_for_keys = False
+320
+
+321
+# When using persistent connections with Paramiko, the connection runs in a
+322
+# background process. If the host doesn't already have a valid SSH key, by
+323
+# default Ansible will prompt to add the host key. This will cause connections
+324
+# running in background processes to fail. Uncomment this line to have
+325
+# Paramiko automatically add host keys.
+326
+#host_key_auto_add = True
+327
+
+328
+[ssh_connection]
+329
+
+330
+# ssh arguments to use
+331
+# Leaving off ControlPersist will result in poor performance, so use
+332
+# paramiko on older platforms rather than removing it, -C controls compression use
+333
+#ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s
+334
+
+335
+# The base directory for the ControlPath sockets. 
+336
+# This is the "%(directory)s" in the control_path option
+337
+# 
+338
+# Example: 
+339
+# control_path_dir = /tmp/.ansible/cp
+340
+#control_path_dir = ~/.ansible/cp
+341
+
+342
+# The path to use for the ControlPath sockets. This defaults to a hashed string of the hostname, 
+343
+# port and username (empty string in the config). The hash mitigates a common problem users 
+344
+# found with long hostames and the conventional %(directory)s/ansible-ssh-%%h-%%p-%%r format. 
+345
+# In those cases, a "too long for Unix domain socket" ssh error would occur.
+346
+#
+347
+# Example:
+348
+# control_path = %(directory)s/%%h-%%r
+349
+#control_path =
+350
+
+351
+# Enabling pipelining reduces the number of SSH operations required to
+352
+# execute a module on the remote server. This can result in a significant
+353
+# performance improvement when enabled, however when using "sudo:" you must
+354
+# first disable 'requiretty' in /etc/sudoers
+355
+#
+356
+# By default, this option is disabled to preserve compatibility with
+357
+# sudoers configurations that have requiretty (the default on many distros).
+358
+#
+359
+#pipelining = False
+360
+
+361
+# Control the mechanism for transferring files (old)
+362
+# * smart = try sftp and then try scp [default]
+363
+# * True = use scp only
+364
+# * False = use sftp only
+365
+#scp_if_ssh = smart
+366
+
+367
+# Control the mechanism for transferring files (new)
+368
+# If set, this will override the scp_if_ssh option
+369
+# * sftp = use sftp to transfer files
+370
+# * scp = use scp to transfer files
+371
+# * piped = use 'dd' over SSH to transfer files
+372
+# * smart = try sftp, scp, and piped, in that order [default]
+373
+#transfer_method = smart
+374
+
+375
+# if False, sftp will not use batch mode to transfer files. This may cause some
+376
+# types of file transfer failures impossible to catch however, and should
+377
+# only be disabled if your sftp version has problems with batch mode
+378
+#sftp_batch_mode = False
+379
+
+380
+[persistent_connection]
+381
+
+382
+# Configures the persistent connection timeout value in seconds. This value is
+383
+# how long the persistent connection will remain idle before it is destroyed. 
+384
+# If the connection doesn't receive a request before the timeout value 
+385
+# expires, the connection is shutdown. The default value is 30 seconds.
+386
+connect_timeout = 30
+387
+
+388
+# Configures the persistent connection retries. This value configures the
+389
+# number of attempts the ansible-connection will make when trying to connect
+390
+# to the local domain socket. The default value is 30.
+391
+connect_retries = 30
+392
+
+393
+# Configures the amount of time in seconds to wait between connection attempts 
+394
+# to the local unix domain socket. This value works in conjunction with the
+395
+# connect_retries value to define how long to try to connect to the local
+396
+# domain socket when setting up a persistent connection. The default value is
+397
+# 1 second.
+398
+connect_interval = 1
+399
+
+400
+[accelerate]
+401
+#accelerate_port = 5099
+402
+#accelerate_timeout = 30
+403
+#accelerate_connect_timeout = 5.0
+404
+
+405
+# The daemon timeout is measured in minutes. This time is measured
+406
+# from the last activity to the accelerate daemon.
+407
+#accelerate_daemon_timeout = 30
+408
+
+409
+# If set to yes, accelerate_multi_key will allow multiple
+410
+# private keys to be uploaded to it, though each user must
+411
+# have access to the system via SSH to add a new key. The default
+412
+# is "no".
+413
+#accelerate_multi_key = yes
+414
+
+415
+[selinux]
+416
+# file systems that require special treatment when dealing with security context
+417
+# the default behaviour that copies the existing context or uses the user default
+418
+# needs to be changed to use the file system dependent context.
+419
+#special_context_filesystems=nfs,vboxsf,fuse,ramfs,9p
+420
+
+421
+# Set this to yes to allow libvirt_lxc connections to work without SELinux.
+422
+#libvirt_lxc_noseclabel = yes
+423
+
+424
+[colors]
+425
+#highlight = white
+426
+#verbose = blue
+427
+#warn = bright purple
+428
+#error = red
+429
+#debug = dark gray
+430
+#deprecate = purple
+431
+#skip = cyan
+432
+#unreachable = red
+433
+#ok = green
+434
+#changed = yellow
+435
+#diff_add = green
+436
+#diff_remove = red
+437
+#diff_lines = cyan
+438
+
+439
+
+440
+[diff]
+441
+# Always print diff when running ( same as always running with -D/--diff )
+442
+# always = no
+443
+
+444
+# Set how many context lines to show in diff
+445
+# context = 3

@@ -1,0 +1,30 @@
+---
+2
+
+3
+- name: User's Quota
+4
+hosts: Mail_Servers
+5
+gather_facts: no
+6
+tasks:
+7
+- name: Quota Check
+8
+shell: "sudo cyrquota | awk '$2>=65 && $2<=100' | awk '{print $4}'"
+9
+register: mlist
+10
+
+11
+- name: Checking Status
+12
+local_action: command python quota.py "{{ mlist.stdout }}"
+13
+register: ulist
+14
+- debug:
+15
+msg: "{{ulist.stdout_lines}}"
+16
